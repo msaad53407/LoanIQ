@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 from sqlalchemy import Integer, String, Float, Boolean, DateTime, ForeignKey, Text, func
@@ -6,6 +6,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
 
 # SQLAlchemy Models
+
+
 class ApplicationModel(Base):
     __tablename__ = "applications"
 
@@ -26,17 +28,20 @@ class ApplicationModel(Base):
         "DecisionModel", back_populates="application", uselist=False
     )
 
+
 class DecisionModel(Base):
     __tablename__ = "decisions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    application_id: Mapped[int] = mapped_column(Integer, ForeignKey("applications.id"))
+    application_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("applications.id"))
     decision: Mapped[str] = mapped_column(String)
     confidence_score: Mapped[float] = mapped_column(Float)
     interest_rate: Mapped[float] = mapped_column(Float)
     max_eligible: Mapped[float] = mapped_column(Float)
     explanation: Mapped[str] = mapped_column(Text)
-    rules_fired: Mapped[str] = mapped_column(String)  # Stored as comma-separated IDs
+    rules_fired: Mapped[str] = mapped_column(
+        String)  # Stored as comma-separated IDs
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
     application: Mapped[Optional["ApplicationModel"]] = relationship(
@@ -44,6 +49,8 @@ class DecisionModel(Base):
     )
 
 # Pydantic Models for API
+
+
 class LoanApplicationSchema(BaseModel):
     applicant_name: str
     age: int
@@ -55,6 +62,7 @@ class LoanApplicationSchema(BaseModel):
     credit_score: int
     has_collateral: bool
     collateral_value: float
+
 
 class LoanDecisionResponse(BaseModel):
     application_id: int
@@ -68,6 +76,7 @@ class LoanDecisionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 class ApplicationWithDecision(BaseModel):
     id: int

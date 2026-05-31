@@ -1,5 +1,6 @@
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any
 from rules_engine import Rule
+
 
 class InferenceEngine:
     def __init__(self, rules: List[Rule]):
@@ -25,7 +26,7 @@ class InferenceEngine:
         elif op == "between":
             low, high = val
             return low <= fact_value <= high
-        
+
         return False
 
     def forward_chaining(self, facts: Dict[str, Any]) -> Dict[str, Any]:
@@ -33,7 +34,7 @@ class InferenceEngine:
         explanation_chain = []
         final_decision = "PENDING"
         recommended_interest_rate = 0.0
-        
+
         # Sort rules by priority (lower number = higher priority)
         sorted_rules = sorted(self.rules, key=lambda x: x.priority)
 
@@ -44,26 +45,26 @@ class InferenceEngine:
                 if fact_field not in facts:
                     match = False
                     break
-                
+
                 if not self.evaluate_condition(facts[fact_field], cond):
                     match = False
                     break
-            
+
             if match:
                 fired_rules.append(rule.rule_id)
                 explanation_chain.append(rule.explanation)
-                
-                # REJECTED takes precedence if multiple rules match, 
+
+                # REJECTED takes precedence if multiple rules match,
                 # or we take the conclusion of the first (highest priority) matching rule
                 if final_decision != "REJECTED":
                     final_decision = rule.conclusion
                     if rule.recommended_interest_rate:
                         recommended_interest_rate = rule.recommended_interest_rate
-                
+
                 if rule.conclusion == "REJECTED":
                     final_decision = "REJECTED"
-                    break # Stop if rejected
-        
+                    break  # Stop if rejected
+
         # Calculate a simple confidence score based on rule matches
         confidence_score = 0
         if fired_rules:
@@ -75,7 +76,8 @@ class InferenceEngine:
                 confidence_score = 75
         else:
             final_decision = "REVIEW"
-            explanation_chain.append("No specific rules matched the applicant's profile. Manual review required.")
+            explanation_chain.append(
+                "No specific rules matched the applicant's profile. Manual review required.")
             confidence_score = 50
 
         return {

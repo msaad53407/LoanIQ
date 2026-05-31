@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 
+
 @dataclass
 class Rule:
     rule_id: str
@@ -9,6 +10,7 @@ class Rule:
     priority: int
     explanation: str
     recommended_interest_rate: Optional[float] = None
+
 
 class RulesEngine:
     def __init__(self):
@@ -100,7 +102,8 @@ class RulesEngine:
                 rule_id="R8",
                 priority=5,
                 conditions=[
-                    {"field": "credit_score", "op": "between", "value": (580, 649)}
+                    {"field": "credit_score",
+                        "op": "between", "value": (580, 649)}
                 ],
                 conclusion="REVIEW",
                 explanation="Credit score is in the marginal range and requires manual review.",
@@ -110,7 +113,8 @@ class RulesEngine:
                 rule_id="R9",
                 priority=5,
                 conditions=[
-                    {"field": "debt_to_income", "op": "between", "value": (0.45, 0.59)}
+                    {"field": "debt_to_income",
+                        "op": "between", "value": (0.45, 0.59)}
                 ],
                 conclusion="REVIEW",
                 explanation="Debt-to-income ratio is in the high-risk range and requires review.",
@@ -120,7 +124,8 @@ class RulesEngine:
                 rule_id="R10",
                 priority=3,
                 conditions=[
-                    {"field": "credit_score", "op": "between", "value": (650, 699)},
+                    {"field": "credit_score",
+                        "op": "between", "value": (650, 699)},
                     {"field": "annual_income", "op": ">=", "value": 60000}
                 ],
                 conclusion="APPROVED",

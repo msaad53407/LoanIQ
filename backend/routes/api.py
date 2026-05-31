@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
-import json
 
 from database import get_db
 from models import ApplicationModel, DecisionModel, LoanApplicationSchema, LoanDecisionResponse, ApplicationWithDecision
@@ -10,6 +9,7 @@ from expert_system import ExpertSystem
 
 router = APIRouter()
 expert_system = ExpertSystem()
+
 
 @router.post("/apply", response_model=LoanDecisionResponse)
 async def apply_for_loan(application: LoanApplicationSchema, db: Session = Depends(get_db)):
@@ -47,6 +47,7 @@ async def apply_for_loan(application: LoanApplicationSchema, db: Session = Depen
         timestamp=db_decision.timestamp
     )
 
+
 @router.get("/applications", response_model=List[ApplicationWithDecision])
 async def list_applications(db: Session = Depends(get_db)):
     apps = db.query(ApplicationModel).all()
@@ -63,12 +64,14 @@ async def list_applications(db: Session = Depends(get_db)):
         })
     return results
 
+
 @router.get("/applications/{application_id}", response_model=LoanDecisionResponse)
 async def get_application_details(application_id: int, db: Session = Depends(get_db)):
-    decision = db.query(DecisionModel).filter(DecisionModel.application_id == application_id).first()
+    decision = db.query(DecisionModel).filter(
+        DecisionModel.application_id == application_id).first()
     if not decision:
         raise HTTPException(status_code=404, detail="Decision not found")
-    
+
     return LoanDecisionResponse(
         application_id=decision.application_id,
         decision=decision.decision,
@@ -76,28 +79,31 @@ async def get_application_details(application_id: int, db: Session = Depends(get
         interest_rate=decision.interest_rate,
         max_eligible=decision.max_eligible,
         explanation=decision.explanation,
-        rules_fired=decision.rules_fired.split(",") if decision.rules_fired else [],
+        rules_fired=decision.rules_fired.split(
+            ",") if decision.rules_fired else [],
         timestamp=decision.timestamp
     )
+
 
 @router.get("/stats")
 async def get_stats(db: Session = Depends(get_db)):
     decisions = db.query(DecisionModel).all()
     apps = db.query(ApplicationModel).all()
     total = len(decisions)
-    
+
     if total == 0:
         return {
-            "total_applications": 0, 
-            "approval_rate": 0, 
-            "avg_credit_score": 0, 
+            "total_applications": 0,
+            "approval_rate": 0,
+            "avg_credit_score": 0,
             "avg_loan_amount": 0,
             "rejection_reasons": []
         }
 
     approved = len([d for d in decisions if d.decision == "APPROVED"])
-    
-    avg_credit = db.query(func.avg(ApplicationModel.credit_score)).scalar() or 0
+
+    avg_credit = db.query(
+        func.avg(ApplicationModel.credit_score)).scalar() or 0
     avg_loan = db.query(func.avg(ApplicationModel.loan_amount)).scalar() or 0
 
     # Map rule IDs to rejection categories
@@ -119,9 +125,12 @@ async def get_stats(db: Session = Depends(get_db)):
         return categories
 
     rejection_reasons = [
-        {"reason": "Low Credit Score", "count": len([d for d in decisions if "credit" in get_rejection_category(d.rules_fired) and d.decision == "REJECTED"])},
-        {"reason": "High Debt Ratio", "count": len([d for d in decisions if "debt" in get_rejection_category(d.rules_fired) and d.decision == "REJECTED"])},
-        {"reason": "Insufficient Income", "count": len([d for d in decisions if "income" in get_rejection_category(d.rules_fired) and d.decision == "REJECTED"])}
+        {"reason": "Low Credit Score", "count": len(
+            [d for d in decisions if "credit" in get_rejection_category(d.rules_fired) and d.decision == "REJECTED"])},
+        {"reason": "High Debt Ratio", "count": len(
+            [d for d in decisions if "debt" in get_rejection_category(d.rules_fired) and d.decision == "REJECTED"])},
+        {"reason": "Insufficient Income", "count": len(
+            [d for d in decisions if "income" in get_rejection_category(d.rules_fired) and d.decision == "REJECTED"])}
     ]
 
     return {
@@ -131,6 +140,7 @@ async def get_stats(db: Session = Depends(get_db)):
         "avg_loan_amount": float(avg_loan),
         "rejection_reasons": rejection_reasons
     }
+
 
 @router.get("/health")
 async def health_check():

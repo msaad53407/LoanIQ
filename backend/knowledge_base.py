@@ -20,7 +20,7 @@ class KnowledgeBase:
             base_multiplier = 3.0
         elif credit_score >= 650:
             base_multiplier = 2.5
-        
+
         return annual_income * base_multiplier
 
     def assess_risk_level(self, credit_score: int, dti: float) -> str:

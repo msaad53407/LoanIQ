@@ -26,6 +26,7 @@ app.add_middleware(
 # Include Router
 app.include_router(api.router, prefix="/api")
 
+
 @app.get("/")
 async def root():
     return {
