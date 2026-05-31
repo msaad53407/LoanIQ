@@ -113,7 +113,7 @@ const LandingPage: React.FC = () => {
               <motion.button
                 {...hoverScale}
                 onClick={() => navigate('/apply')}
-                className="px-8 py-4 bg-blue-600 text-white rounded-full font-bold text-lg shadow-xl shadow-blue-200 flex items-center gap-2 group"
+                className="px-8 py-4 bg-blue-600 text-white rounded-full font-bold text-lg flex items-center gap-2 group"
               >
                 Apply for Loan
                 <ChevronRight className="group-hover:translate-x-1 transition-transform" />

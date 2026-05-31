@@ -1,43 +1,47 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, Text, func
-from sqlalchemy.orm import relationship
+from sqlalchemy import Integer, String, Float, Boolean, DateTime, ForeignKey, Text, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
 
 # SQLAlchemy Models
 class ApplicationModel(Base):
     __tablename__ = "applications"
 
-    id = Column(Integer, primary_key=True, index=True)
-    applicant_name = Column(String)
-    age = Column(Integer)
-    annual_income = Column(Float)
-    monthly_debt = Column(Float)
-    loan_amount = Column(Float)
-    loan_purpose = Column(String)
-    employment_years = Column(Float)
-    credit_score = Column(Integer)
-    has_collateral = Column(Boolean)
-    collateral_value = Column(Float)
-    created_at = Column(DateTime, default=func.now())
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    applicant_name: Mapped[str] = mapped_column(String)
+    age: Mapped[int] = mapped_column(Integer)
+    annual_income: Mapped[float] = mapped_column(Float)
+    monthly_debt: Mapped[float] = mapped_column(Float)
+    loan_amount: Mapped[float] = mapped_column(Float)
+    loan_purpose: Mapped[str] = mapped_column(String)
+    employment_years: Mapped[float] = mapped_column(Float)
+    credit_score: Mapped[int] = mapped_column(Integer)
+    has_collateral: Mapped[bool] = mapped_column(Boolean)
+    collateral_value: Mapped[float] = mapped_column(Float)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
-    decision = relationship("DecisionModel", back_populates="application", uselist=False)
+    decision: Mapped[Optional["DecisionModel"]] = relationship(
+        "DecisionModel", back_populates="application", uselist=False
+    )
 
 class DecisionModel(Base):
     __tablename__ = "decisions"
 
-    id = Column(Integer, primary_key=True, index=True)
-    application_id = Column(Integer, ForeignKey("applications.id"))
-    decision = Column(String)
-    confidence_score = Column(Float)
-    interest_rate = Column(Float)
-    max_eligible = Column(Float)
-    explanation = Column(Text)
-    rules_fired = Column(String) # Stored as comma-separated IDs
-    timestamp = Column(DateTime, default=func.now())
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    application_id: Mapped[int] = mapped_column(Integer, ForeignKey("applications.id"))
+    decision: Mapped[str] = mapped_column(String)
+    confidence_score: Mapped[float] = mapped_column(Float)
+    interest_rate: Mapped[float] = mapped_column(Float)
+    max_eligible: Mapped[float] = mapped_column(Float)
+    explanation: Mapped[str] = mapped_column(Text)
+    rules_fired: Mapped[str] = mapped_column(String)  # Stored as comma-separated IDs
+    timestamp: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
-    application = relationship("ApplicationModel", back_populates="decision")
+    application: Mapped[Optional["ApplicationModel"]] = relationship(
+        "ApplicationModel", back_populates="decision"
+    )
 
 # Pydantic Models for API
 class LoanApplicationSchema(BaseModel):
