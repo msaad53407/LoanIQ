@@ -42,6 +42,11 @@ const mapFromBackend = (data: any): ApplicationRecord => ({
   collateralValue: data.collateral_value || 0,
 })
 
+const sortApplicationsByNewest = (apps: ApplicationRecord[]): ApplicationRecord[] =>
+  [...apps].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  )
+
 // Mapper: Decision response (POST /apply, GET /applications/:id) -> LoanDecision
 const mapDecisionFromBackend = (data: any): LoanDecision => ({
   applicationId: data.application_id,
@@ -64,7 +69,7 @@ export const loanApi = {
 
   getAllApplications: async (): Promise<ApplicationRecord[]> => {
     const response = await api.get('/applications')
-    return response.data.map(mapFromBackend)
+    return sortApplicationsByNewest(response.data.map(mapFromBackend))
   },
 
   getApplicationById: async (id: string): Promise<LoanDecision> => {

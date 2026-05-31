@@ -50,7 +50,11 @@ async def apply_for_loan(application: LoanApplicationSchema, db: Session = Depen
 
 @router.get("/applications", response_model=List[ApplicationWithDecision])
 async def list_applications(db: Session = Depends(get_db)):
-    apps = db.query(ApplicationModel).all()
+    apps = (
+        db.query(ApplicationModel)
+        .order_by(ApplicationModel.created_at.desc())
+        .all()
+    )
     results = []
     for app in apps:
         results.append({
